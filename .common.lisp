@@ -25,6 +25,10 @@
                        ,@body))
                    body)))))))
 
+(defun argp (arg)
+  (and (member arg (uiop:command-line-arguments) :test #'string=)
+       t))
+
 (defun arg= (arg value)
   (let* ((arg-cons (member arg (uiop:command-line-arguments) :test #'string=))
          (arg-val (second arg-cons)))
@@ -46,3 +50,38 @@
 
 (unless-arg "--no-utils"
   (include "utils"))
+
+(when-arg ("--compile" thing)
+  (flet ((lose (fmt &rest args)
+           (format *error-output* "error: ")
+           (apply #'format *error-output* fmt args)
+           (terpri *error-output*)
+           (uiop:quit 1)))
+    (unless thing
+      (lose "Missing argument to --compile"))
+    (let ((truename (probe-file thing)))
+      (cond
+        ((null truename)
+         (lose "Cannot find file '~A'" thing))
+        ((uiop:directory-pathname-p truename)
+         (lose "Pathname is a directory: '~A'" truename))
+        ((and (pathname-type truename) (string-equal (pathname-type truename) "asd"))
+         (let ((success nil))
+           (unwind-protect
+                (progn
+                  (let ((*debugger-hook*
+                          (lambda (c h)
+                            (declare (ignore h))
+                            (lose "~A" c))))
+                    (asdf:load-asd truename)
+                    (asdf:load-system (pathname-name truename) :verbose (argp "--verbose") :force (argp "--force"))))
+             (uiop:quit (if success 0 1)))))
+        (t
+         (let ((success nil))
+           (unwind-protect
+                (handler-case
+                    (let ((*compile-verbose*  (argp "--verbose")))
+                      (setf success (not (nth-value 2 (compile-file truename)))))
+                  (error (e)
+                    (lose "~A" e)))
+             (uiop:quit (if success 0 1)))))))))
