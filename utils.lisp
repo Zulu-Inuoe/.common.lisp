@@ -1,3 +1,5 @@
+(in-package #:cl-user)
+
 (defmacro ql-import (&rest systems)
   `(eval-when (:compile-toplevel :load-toplevel :execute)
      ,@ (mapcar (lambda (system)
