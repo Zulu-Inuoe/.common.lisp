@@ -272,6 +272,8 @@ Each dependency is identified by its name (a string)."
       (open-in-default-application pathname)
       pathname)))
 
+(include "place")
+
 (ql-import #:drakma #:jonathan)
 
 (defun fizzbuzz (n)
