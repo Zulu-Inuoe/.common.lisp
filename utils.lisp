@@ -180,6 +180,15 @@ Each dependency is identified by its name (a string)."
   "As `apropos', but only examines symbols that are `boundp' (and not keywords), `symbol-macro-p', or `fboundp'"
   (%apropos-collecting string-designator #'symbol-bound-p package external-only))
 
+(defun external-symbols (package)
+  (let ((ret ()))
+    (do-external-symbols (sym package ret)
+      (push sym ret))))
+
+(defun unexport-all (package)
+  (dolist (sym (external-symbols package))
+    (unexport sym package)))
+
 (ql-import #:alexandria #:cl-ppcre)
 
 (defun apropos-value (pattern &optional do-all)
