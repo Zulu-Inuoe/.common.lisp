@@ -1,6 +1,6 @@
 (in-package #:cl-user)
 
-(ql-import #:drakma #:jonathan)
+(import+ #:drakma #:jonathan)
 
 (defun fizzbuzz (n)
   "Return \"Fizz\", \"Buzz\", \"FizzBuzz\", or \"`n'\" depending on the divisibility of `n'"
