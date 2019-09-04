@@ -48,6 +48,18 @@
 (unless-arg "--no-quicklisp"
   (include "quicklisp"))
 
+(defmacro import+ (&rest systems)
+  `(eval-when (:compile-toplevel :load-toplevel :execute)
+     ,@ (mapcar (lambda (system)
+                  (let ((system-sym (gensym "SYSTEM")))
+                    `(let ((,system-sym (asdf:find-system ',system)))
+                       (unless (and ,system-sym (asdf:component-loaded-p ,system-sym))
+                         #+quicklisp
+                         (ql:quickload '(,system) :verbose nil :silent t)
+                         #-quicklisp
+                         (asdf:load-op ',system)))))
+                systems)))
+
 (unless-arg "--no-utils"
   (include "utils"))
 

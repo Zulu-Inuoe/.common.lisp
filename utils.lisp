@@ -1,14 +1,5 @@
 (in-package #:cl-user)
 
-(defmacro import+ (&rest systems)
-  `(eval-when (:compile-toplevel :load-toplevel :execute)
-     ,@ (mapcar (lambda (system)
-                  (let ((system-sym (gensym "SYSTEM")))
-                    `(let ((,system-sym (asdf:find-system ',system)))
-                       (unless (and ,system-sym (asdf:component-loaded-p ,system-sym))
-                         (ql:quickload '(,system) :verbose nil :silent t)))))
-                systems)))
-
 (include "quicklisp")
 (include "quicklisp+")
 
