@@ -41,9 +41,9 @@
     (check-type file (or string pathname))
     `(progn
        (eval-when (:compile-toplevel)
-         (compile-file (merge-pathnames ',file *compile-file-truename*)))
+         (compile-file (merge-pathnames ',file (or *compile-file-truename* *default-pathname-defaults*))))
        (eval-when (:load-toplevel :execute)
-         (load (merge-pathnames ',file *load-truename*))))))
+         (load (merge-pathnames ',file (or *load-truename* *default-pathname-defaults*)))))))
 
 (unless-arg "--no-quicklisp"
   (include "quicklisp"))
