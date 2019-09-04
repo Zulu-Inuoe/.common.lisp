@@ -1,5 +1,6 @@
 (in-package #:cl-user)
 
+(include "uiop+")
 (include "user")
 
 (defun %write-system-template (stream
@@ -71,11 +72,12 @@
               name))
 
     ;;Make the main .lisp
-    (with-open-file (stream (uiop:merge-pathnames* "main.lisp" dir) :direction :output :if-exists :supersede)
-      (format stream "(in-package #:~A)~%~%" name)
-      (format stream "(defun main (&rest args)
-  0)
-"))))
+    (let ((main-file (uiop:merge-pathnames* "main.lisp" dir)))
+      (with-open-file (stream main-file :direction :output :if-exists :supersede)
+        (format stream "(in-package #:~A)~%~%" name)
+        (format stream "(defun main (&rest args)
+  0)~%"))
+      main-file)))
 
 (defun %library-system-template (path)
   (let ((name (pathname-name path))
@@ -99,8 +101,10 @@
               name))
 
     ;;Make the main .lisp
-    (with-open-file (stream (uiop:merge-pathnames* (make-pathname :name name :type "lisp") dir) :direction :output :if-exists :supersede)
-      (format stream "(in-package #:~A)~%~%" name))))
+    (let ((main-file (uiop:merge-pathnames* (make-pathname :name name :type "lisp") dir)))
+      (with-open-file (stream main-file :direction :output :if-exists :supersede)
+        (format stream "(in-package #:~A)~%~%" name))
+      main-file)))
 
 (defun make-project (name &key
                             (dir *default-pathname-defaults*)
@@ -108,6 +112,7 @@
                      &aux
                        (dir (uiop:ensure-directory-pathname dir))
                        (path (uiop:merge-pathnames* (make-pathname :name name :type "asd") dir)))
-  (ecase type
-    (:library (library-system-template path))
-    (:executable (executable-system-template path))))
+  (open-in-default-application
+   (ecase type
+     (:library (%library-system-template path))
+     (:executable (%executable-system-template path)))))
