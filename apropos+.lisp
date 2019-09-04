@@ -10,8 +10,9 @@
 
 (defun %apropos-iterator (str filter selector &optional package external-only)
   "Iterates over symbols according to `package' and `external-only', testing them with `filter'.
-  If `filter' returns true, prints the symbols as per `apropos-symbol-print'"
-  (let ((seen (make-hash-table :test 'eq)))
+  If `filter' returns true, calls `selector'."
+  (let ((str (string str))
+        (seen (make-hash-table :test 'eq)))
     (flet ((apply-filter (sym)
              (when (and (not (gethash sym seen))
                         (search str (symbol-name sym) :test #'char-equal)
@@ -31,15 +32,12 @@
   (values))
 
 (defun %apropos-printing (string-designator filter &optional package external-only)
-  (let ((str (string string-designator)))
-    (%apropos-iterator str filter #'apropos-symbol-print
-                       package external-only))
-  (values))
+  (%apropos-iterator string-designator filter #'apropos-symbol-print
+                     package external-only))
 
 (defun %apropos-collecting (string-designator filter &optional package external-only)
-  (let ((str (string string-designator))
-        (ret ()))
-    (%apropos-iterator str filter (lambda (sym) (push sym ret))
+  (let ((ret ()))
+    (%apropos-iterator string-designator filter (lambda (sym) (push sym ret))
                        package external-only)
     ret))
 
