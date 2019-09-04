@@ -3,15 +3,15 @@
 (include "user")
 
 (defun %write-system-template (stream
-                              &key
-                                (name (alexandria:required-argument :name))
-                                (version "0.0.0")
-                                (description "")
-                                (author (format nil "~A~@[ <~A>~]" user-full-name user-mail-address))
-                                (license "MIT")
-                                static-files
-                                files
-                                depends-on)
+                               &key
+                                 (name (alexandria:required-argument :name))
+                                 (version "0.0.0")
+                                 (description "")
+                                 (author (format nil "~A~@[ <~A>~]" user-full-name user-mail-address))
+                                 (license "MIT")
+                                 static-files
+                                 files
+                                 depends-on)
   (format stream "(defsystem #:~A
   :version \"~A\"
   :description \"~A\"
@@ -78,7 +78,7 @@
 "))))
 
 (defun %library-system-template (path)
-    (let ((name (pathname-name path))
+  (let ((name (pathname-name path))
         (dir (uiop:pathname-directory-pathname path)))
     ;;Make the asd file
     (ensure-directories-exist path)
