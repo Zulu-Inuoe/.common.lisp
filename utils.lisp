@@ -9,4 +9,5 @@
 (include "cl-dot+")
 (include "fizzbuzz")
 (include "uiop+")
+(include "user")
 (include "place")
