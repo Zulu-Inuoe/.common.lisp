@@ -55,7 +55,7 @@
     ;;Make the asd file
     (ensure-directories-exist path)
     (with-open-file (stream path :direction :output :if-exists :supersede)
-      (write-system-template stream :name name
+      (%write-system-template stream :name name
                                     :static-files '("qlfile")
                                     :files '("package" "main")
                                     :depends-on '("alexandria")))
@@ -85,7 +85,7 @@
     ;;Make the asd file
     (ensure-directories-exist path)
     (with-open-file (stream path :direction :output :if-exists :supersede)
-      (write-system-template stream :name name
+      (%write-system-template stream :name name
                                     :static-files '("qlfile")
                                     :files (list "package" name)
                                     :depends-on '("alexandria")))
