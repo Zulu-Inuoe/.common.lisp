@@ -50,14 +50,14 @@
 
 (defmacro import+ (&rest systems)
   `(eval-when (:compile-toplevel :load-toplevel :execute)
-     ,@ (mapcar (lambda (system)
-                  (let ((system-sym (gensym "SYSTEM")))
-                    `(let ((,system-sym (asdf:find-system ',system)))
-                       (unless (and ,system-sym (asdf:component-loaded-p ,system-sym))
-                         #+quicklisp
-                         (ql:quickload '(,system) :verbose nil :silent t)
-                         #-quicklisp
-                         (asdf:load-op ',system)))))
+     ,@ (mapcar (lambda (system-designator)
+                  `(let ((system (asdf:find-system ',system-designator nil)))
+                     (unless (and system (asdf:component-loaded-p system))
+                       (let* ((ql (find-package "QUICKLISP"))
+                              (quickload (and ql (find-symbol "QUICKLOAD" ql))))
+                         (if quickload
+                             (funcall quickload '(,system-designator) :verbose nil :silent t)
+                             (asdf:load-system ',system-designator))))))
                 systems)))
 
 (unless-arg "--no-utils"
