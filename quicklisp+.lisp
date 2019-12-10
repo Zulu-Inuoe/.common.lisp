@@ -3,6 +3,15 @@
 (include "quicklisp")
 (include "asdf+")
 
+(defun ql-install-version (version &optional dist)
+  "Install `version' for dist `dist'"
+  (let* ((dist (or (ql-dist:dist (or dist "quicklisp"))
+                   (error "Can't find dist ~A" dist)))
+         (pair (find version (ql-dist:available-versions dist) :key #'car :test #'string-equal)))
+    (unless pair
+      (error "Can't find dist ~A version ~A" dist version))
+    (ql-dist:install-dist (cdr pair) :replace t)))
+
 (defun ql-dependencies (system)
   "Get the dependencies of system which are in Quicklisp"
   (let* ((dependent-system-names (system-dependencies system))
