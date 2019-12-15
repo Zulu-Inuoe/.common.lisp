@@ -3,14 +3,7 @@
 (eval-when (:compile-toplevel :load-toplevel :execute)
   (defun hash-table-reader (stream char)
     (declare (ignore char))
-    (let ((kvp-l (alexandria:plist-alist (read-delimited-list #\} stream  t)))
-          (ht-sym (gensym "HASH-TABLE")))
-      `(let ((,ht-sym (make-hash-table :test #'equal)))
-         (setf ,@(mapcan (lambda (kvp)
-                           (destructuring-bind (k . v) kvp
-                             (list `(gethash (quote ,k) ,ht-sym) v)))
-                         kvp-l))
-         ,ht-sym))))
+    `(hash ,@(read-delimited-list #\} stream  t))))
 
 (eval-when (:compile-toplevel :load-toplevel :execute)
   (set-macro-character #\{ 'hash-table-reader)
@@ -44,3 +37,4 @@
 
 (eval-when (:compile-toplevel :load-toplevel :execute)
   (set-pprint-dispatch 'hash-table 'pprint-hash-table))
+
