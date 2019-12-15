@@ -12,3 +12,4 @@
 (include "uiop+")
 (include "user")
 (include "place")
+(include "print-hash-table")
