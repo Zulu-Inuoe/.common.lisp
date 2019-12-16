@@ -5,11 +5,11 @@
     (declare (ignore char))
     `(hash ,@(read-delimited-list #\} stream  t))))
 
-(eval-when (:compile-toplevel :load-toplevel :execute)
-  (set-macro-character #\{ 'hash-table-reader)
-  (set-macro-character #\} (lambda (stream char)
-                             (declare (ignore stream char))
-                             (error "unmatched close bracket"))))
+;; (eval-when (:compile-toplevel :load-toplevel :execute)
+;;   (set-macro-character #\{ 'hash-table-reader)
+;;   (set-macro-character #\} (lambda (stream char)
+;;                              (declare (ignore stream char))
+;;                              (error "unmatched close bracket"))))
 
 (eval-when (:compile-toplevel :load-toplevel :execute)
   (defun pprint-hash-table (stream object)
