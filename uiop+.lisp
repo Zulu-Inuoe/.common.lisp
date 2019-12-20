@@ -17,17 +17,13 @@
 
 (defun executable-find (command)
   "Attempt to find the executable corresponding to `command'."
-  (loop
-    :with commands := (cons command
-                            (cond
-                              ((uiop:os-windows-p)
-                               (when (null (pathname-type command))
-                                 (mapcar (lambda (p)
-                                           (make-pathname :type (subseq (pathname-name p) 1)
-                                                          :defaults command))
-                                         (uiop:getenv-pathnames "PATHEXT"))))
-                              (t nil)))
-    :for dir :in (uiop:getenv-absolute-directories "PATH")
-    :if (some (lambda (c) (probe-file (uiop:merge-pathnames* c dir))) commands)
-      :return :it))
-
+  (multiple-value-bind (outstring errstring exit-code)
+      (uiop:run-program (list  #+(or win32 mswindows)"where"
+                               #-(or win32 mswindows)"which"
+                               command) :force-shell t :output '(:string :stripped t) :ignore-error-status t)
+    (declare (ignore errstring))
+    (when (zerop exit-code) (uiop:parse-native-namestring
+                             #+(or win32 mswindows)
+                             (subseq outstring 0 (position #\Return outstring))
+                             #-(or win32 mswindows)
+                             outstring))))
