@@ -1,23 +1,23 @@
 (in-package #:cl-user)
 
-(defmacro eval-always (&body body)
+(defmacro :eval-always (&body body)
   `(eval-when (:compile-toplevel :load-toplevel :execute)
      ,@body))
 
-(eval-always
+(:eval-always
   (require "asdf")
   (require "uiop"))
 
-(defmacro unless-arg (arg &body body)
-  `(eval-always
+(defmacro :unless-arg (arg &body body)
+  `(:eval-always
      (unless (member ,arg (uiop:command-line-arguments) :test #'string=)
        ,@body)))
 
-(defmacro when-arg (arg &body body)
+(defmacro :when-arg (arg &body body)
   (destructuring-bind (arg-name &optional arg-value-sym)
       (uiop:ensure-list arg)
     (let ((tmp-sym (gensym "TMP")))
-      `(eval-always
+      `(:eval-always
          (let ((,tmp-sym (member ,arg-name (uiop:command-line-arguments) :test #'string=)))
            (when ,tmp-sym
              ,@(if arg-value-sym
@@ -25,16 +25,16 @@
                        ,@body))
                    body)))))))
 
-(defun argp (arg)
+(defun :argp (arg)
   (and (member arg (uiop:command-line-arguments) :test #'string=)
        t))
 
-(defun arg= (arg value)
+(defun :arg= (arg value)
   (let* ((arg-cons (member arg (uiop:command-line-arguments) :test #'string=))
          (arg-val (second arg-cons)))
     (and arg-val (string= arg-val value))))
 
-(defmacro include (file)
+(defmacro :include (file)
   (let ((file (macroexpand file)))
     (assert (constantp file) (file))
     (setf file (eval file))
@@ -45,10 +45,10 @@
        (eval-when (:load-toplevel :execute)
          (load (merge-pathnames ',file (or *load-truename* *default-pathname-defaults*)))))))
 
-(unless-arg "--no-quicklisp"
-  (include "quicklisp"))
+(:unless-arg "--no-quicklisp"
+  (:include "quicklisp"))
 
-(defmacro import+ (&rest systems)
+(defmacro :import+ (&rest systems)
   `(eval-when (:compile-toplevel :load-toplevel :execute)
      ,@ (mapcar (lambda (system-designator)
                   `(let ((system (asdf:find-system ',system-designator nil)))
@@ -60,10 +60,10 @@
                              (asdf:load-system ',system-designator))))))
                 systems)))
 
-(unless-arg "--no-utils"
-  (include "utils"))
+(:unless-arg "--no-utils"
+  (:include "utils"))
 
-(when-arg ("--compile" thing)
+(:when-arg ("--compile" thing)
   (flet ((lose (fmt &rest args)
            (format *error-output* "error: ")
            (apply #'format *error-output* fmt args)
@@ -86,13 +86,13 @@
                             (declare (ignore h))
                             (lose "~A" c))))
                     (asdf:load-asd truename)
-                    (asdf:load-system (pathname-name truename) :verbose (argp "--verbose") :force (argp "--force"))))
+                    (asdf:load-system (pathname-name truename) :verbose (:argp "--verbose") :force (:argp "--force"))))
              (uiop:quit (if success 0 1)))))
         (t
          (let ((success nil))
            (unwind-protect
                 (handler-case
-                    (let ((*compile-verbose*  (argp "--verbose")))
+                    (let ((*compile-verbose*  (:argp "--verbose")))
                       (setf success (not (nth-value 2 (compile-file truename)))))
                   (error (e)
                     (lose "~A" e)))

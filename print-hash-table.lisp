@@ -1,18 +1,18 @@
 (in-package #:cl-user)
 
 (eval-when (:compile-toplevel :load-toplevel :execute)
-  (defun hash-table-reader (stream char)
+  (defun :hash-table-reader (stream char)
     (declare (ignore char))
     `(hash ,@(read-delimited-list #\} stream  t))))
 
 ;; (eval-when (:compile-toplevel :load-toplevel :execute)
-;;   (set-macro-character #\{ 'hash-table-reader)
+;;   (set-macro-character #\{ ':hash-table-reader)
 ;;   (set-macro-character #\} (lambda (stream char)
 ;;                              (declare (ignore stream char))
 ;;                              (error "unmatched close bracket"))))
 
 (eval-when (:compile-toplevel :load-toplevel :execute)
-  (defun pprint-hash-table (stream object)
+  (defun :pprint-hash-table (stream object)
     (check-type object hash-table)
     (cond
       (*print-readably*
@@ -48,5 +48,5 @@
        (write-char #\} stream)))))
 
 (eval-when (:compile-toplevel :load-toplevel :execute)
-  (set-pprint-dispatch 'hash-table 'pprint-hash-table))
+  (set-pprint-dispatch 'hash-table ':pprint-hash-table))
 

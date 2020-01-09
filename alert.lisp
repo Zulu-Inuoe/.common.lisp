@@ -1,7 +1,7 @@
 (in-package #:cl-user)
 
-(import+ #:bordeaux-threads)
-(import+ #:cffi)
+(:import+ #:bordeaux-threads)
+(:import+ #:cffi)
 
 (cffi:define-foreign-library kernel32
   (:win32 "Kernel32.dll"))
@@ -12,7 +12,7 @@
   (freq :uint32)
   (duration :uint32))
 
-(defun alert ()
+(defun :alert ()
   (loop
     :repeat 2
     :do
@@ -22,7 +22,7 @@
        (kernel32-beep 800 400)
        (sleep .7)))
 
-(defun alert-timer (time &key (units :minutes))
+(defun :alert-timer (time &key (units :minutes))
   (let ((multiplier
           (ecase units
             (:seconds 1)
@@ -31,4 +31,4 @@
     (bordeaux-threads:make-thread
      (lambda ()
        (sleep (* multiplier time))
-       (alert)))))
+       (:alert)))))

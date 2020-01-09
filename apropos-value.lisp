@@ -1,8 +1,10 @@
 (in-package #:cl-user)
 
-(import+ #:alexandria #:cl-ppcre)
+(:import+ #:alexandria #:cl-ppcre)
 
-(defun apropos-value (pattern &optional do-all)
+(:include "apropos+")
+
+(defun :apropos-value (pattern &optional do-all)
   "Search for symbols who's value matches `pattern'.
     `pattern' may be a single regex or a list of regexes to match against.
   When `do-all' is true, additionally match against symbol properties, as well as function contents.
@@ -30,7 +32,7 @@
                     (values (is-match-p string)
                             (symbol-value sym)
                             string)))
-                 ((symbol-macro-p sym)
+                 ((:symbol-macro-p sym)
                   (let* ((expansion (macroexpand-1 sym))
                          (string (stringify expansion)))
                     (when string
@@ -79,7 +81,7 @@
                  (go :continue))
 
                ;; Skip symbols that have no properties to match against
-               (unless (or (boundp sym) (symbol-macro-p sym)
+               (unless (or (boundp sym) (:symbol-macro-p sym)
                            (and do-all
                                 (or (fboundp sym) (symbol-plist sym))))
                  (go :continue))
@@ -91,7 +93,7 @@
                (multiple-value-bind (match-p value)
                    (symbol-match sym)
                  (when match-p
-                   (apropos-symbol-print sym)
+                   (:apropos-symbol-print sym)
                    ;; Also print the value that matched
                    (format t "~0,3T~S~2%" value))))
            :continue)))))

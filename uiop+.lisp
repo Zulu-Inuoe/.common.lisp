@@ -1,8 +1,8 @@
 (in-package #:cl-user)
 
-(import+ #:uiop)
+(:import+ #:uiop)
 
-(defun open-in-default-application (pathname)
+(defun :open-in-default-application (pathname)
   (cond
     ((uiop:os-windows-p)
      (if (uiop:directory-pathname-p pathname)
@@ -15,7 +15,7 @@
     (t
      (error "Don't know how to open in default application"))))
 
-(defun executable-find (command)
+(defun :executable-find (command)
   "Attempt to find the executable corresponding to `command'."
   (multiple-value-bind (outstring errstring exit-code)
       (uiop:run-program (list  #+(or win32 mswindows)"where"

@@ -1,9 +1,9 @@
 (in-package #:cl-user)
 
-(include "quicklisp")
-(include "asdf+")
+(:include "quicklisp")
+(:include "asdf+")
 
-(defun ql-install-version (version &optional dist)
+(defun :ql-install-version (version &optional dist)
   "Install `version' for dist `dist'"
   (let* ((dist (or (ql-dist:dist (or dist "quicklisp"))
                    (error "Can't find dist ~A" dist)))
@@ -12,13 +12,13 @@
       (error "Can't find dist ~A version ~A" dist version))
     (ql-dist:install-dist (cdr pair) :replace t)))
 
-(defun ql-dependencies (system)
+(defun :ql-dependencies (system)
   "Get the dependencies of system which are in Quicklisp"
-  (let* ((dependent-system-names (system-dependencies system))
+  (let* ((dependent-system-names (:system-dependencies system))
          (ql-system-names (mapcar #'ql-dist:name (ql:system-list))))
     (nintersection dependent-system-names ql-system-names :test #'string=)))
 
-(defun make-ql-bundle (systems
+(defun :make-ql-bundle (systems
                        &optional
                          (to (uiop:merge-pathnames*
                               (make-pathname
@@ -27,7 +27,7 @@
                          (overwrite t))
   "Create a ql bundle as per `ql:bundle-systems', but selectively includes non-ql dependencies
   into `ql:*local-project-directories*'."
-  (let* ((all-deps (delete-duplicates (mapcan #'system-dependencies systems) :test #'string=))
+  (let* ((all-deps (delete-duplicates (mapcan #':system-dependencies systems) :test #'string=))
          ;; Exclude asdf
          (all-deps (delete "asdf" all-deps :test #'string=))
          ;; Exclude uiop

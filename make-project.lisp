@@ -1,7 +1,7 @@
 (in-package #:cl-user)
 
-(include "uiop+")
-(include "user")
+(:include "uiop+")
+(:include "user")
 
 (defun %write-system-template (stream
                                &key
@@ -106,13 +106,13 @@
         (format stream "(in-package #:~A)~%~%" name))
       main-file)))
 
-(defun make-project (name &key
+(defun :make-project (name &key
                             (dir *default-pathname-defaults*)
                             (type :library)
                      &aux
                        (dir (uiop:ensure-directory-pathname dir))
                        (path (uiop:merge-pathnames* (make-pathname :name name :type "asd") dir)))
-  (open-in-default-application
+  (:open-in-default-application
    (ecase type
      (:library (%library-system-template path))
      (:executable (%executable-system-template path)))))
