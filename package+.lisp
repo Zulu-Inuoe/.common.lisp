@@ -6,7 +6,7 @@
       (push sym ret))))
 
 (defun :unexport-all (package)
-  (dolist (sym (external-symbols package))
+  (dolist (sym (:external-symbols package))
     (unexport sym package)))
 
 (defun :delete-package* (package-designator)
