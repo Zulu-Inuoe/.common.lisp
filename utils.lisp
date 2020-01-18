@@ -43,5 +43,6 @@
 (:include "make-project")
 (:include "uiop+")
 (:include "user")
+(:include "package+")
 (:include "place")
 (:include "print-hash-table")
