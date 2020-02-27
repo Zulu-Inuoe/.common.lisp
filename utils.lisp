@@ -35,6 +35,12 @@
                        (list `(quote ,k) v)))
                    (alexandria:plist-alist kvp))))
 
+(declaim (inline :uint->int))
+(defun :uint->int (size value)
+  "unsigned integer -> signed integer conversion"
+  (declare (type unsigned-byte size value))
+  (logior value (- (mask-field (byte 1 (1- size)) value))))
+
 (:include "alert")
 (:include "apropos+")
 (:include "apropos-value")
