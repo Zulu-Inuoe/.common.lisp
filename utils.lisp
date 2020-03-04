@@ -31,7 +31,7 @@
                           (every #'characterp keys))
                       'eql)
                      (t 'equal))))
-        `(let ((,ht-sym (make-hash-table :test #',test)))
+        `(let ((,ht-sym (make-hash-table :size ,(length keys) :test #',test)))
            (setf ,@(mapcan (lambda (kvp)
                              (destructuring-bind (k . v) kvp
                                (list `(gethash (quote ,k) ,ht-sym) v)))
