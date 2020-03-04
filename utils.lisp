@@ -3,23 +3,41 @@
 (:include "quicklisp")
 (:include "quicklisp+")
 
-(defmacro :hash (&rest kvp)
+(defun :hash (&rest kvp)
   "Pseudo-syntax for literla hash tables"
-  (let* ((kvp-l (alexandria:plist-alist kvp))
-         (ht-sym (gensym "HASH-TABLE"))
-         (keys (mapcar #'car kvp-l))
-         (test (cond
-                 ((every #'symbolp keys) 'eq)
-                 ((or (every #'numberp keys)
-                      (every #'characterp keys))
-                  'eql)
-                 (t 'equal))))
-    `(let ((,ht-sym (make-hash-table :test #',test)))
-       (setf ,@(mapcan (lambda (kvp)
-                         (destructuring-bind (k . v) kvp
-                           (list `(gethash (quote ,k) ,ht-sym) v)))
-                       kvp-l))
-       ,ht-sym)))
+  (declare (dynamic-extent kvp))
+  (let ((test (cond
+                ((alexandria:doplist (k v kvp t)
+                   (when (not (symbolp k))
+                     (return nil)))
+                 'eq)
+                ((alexandria:doplist (k v kvp t)
+                   (unless (or (numberp k)
+                               (characterp k))
+                     (return nil)))
+                 'eql)
+                (t 'equal))))
+    (alexandria:plist-hash-table kvp :size (/ (length kvp) 2) :test test)))
+
+(define-compiler-macro :hash (&whole whole &rest kvp)
+  (if (every #'constantp kvp)
+      (let* ((kvp (mapcar #'eval kvp))
+             (kvp-l (alexandria:plist-alist kvp))
+             (ht-sym (gensym "HASH-TABLE"))
+             (keys (mapcar #'car kvp-l))
+             (test (cond
+                     ((every #'symbolp keys) 'eq)
+                     ((or (every #'numberp keys)
+                          (every #'characterp keys))
+                      'eql)
+                     (t 'equal))))
+        `(let ((,ht-sym (make-hash-table :test #',test)))
+           (setf ,@(mapcan (lambda (kvp)
+                             (destructuring-bind (k . v) kvp
+                               (list `(gethash (quote ,k) ,ht-sym) v)))
+                           kvp-l))
+           ,ht-sym))
+      whole))
 
 (defmacro :alist (&rest kvp)
   "Pseudo-syntax for literla alist"
