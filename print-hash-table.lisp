@@ -17,7 +17,7 @@
     (cond
       (*print-readably*
        (pprint-logical-block (stream nil :prefix "#.(" :suffix ")")
-         (write 'hash :stream stream)
+         (write :hash :stream stream)
          (maphash
           (lambda (k v)
             (write-char #\Space stream)
