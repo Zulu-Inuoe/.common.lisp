@@ -62,13 +62,14 @@
   (defmacro :import+ (&rest systems)
     `(eval-when (:compile-toplevel :load-toplevel :execute)
        ,@ (mapcar (lambda (system-designator)
-                    `(let ((system (asdf:find-system ',system-designator nil)))
-                       (unless (and system (asdf:component-loaded-p system))
-                         (let* ((ql (find-package "QUICKLISP"))
-                                (quickload (and ql (find-symbol "QUICKLOAD" ql))))
-                           (if quickload
-                               (funcall quickload '(,system-designator) :verbose nil :silent t)
-                               (asdf:load-system ',system-designator))))))
+                    `(handler-bind ((asdf:bad-system-name #'muffle-warning))
+                       (let ((system (asdf:find-system ',system-designator nil)))
+                         (unless (and system (asdf:component-loaded-p system))
+                           (let* ((ql (find-package "QUICKLISP"))
+                                  (quickload (and ql (find-symbol "QUICKLOAD" ql))))
+                             (if quickload
+                                 (funcall quickload '(,system-designator) :verbose nil :silent t)
+                                 (asdf:load-system ',system-designator)))))))
                   systems)))
 
   (:unless-arg "--no-utils"
