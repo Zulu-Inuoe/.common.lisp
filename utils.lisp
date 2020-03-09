@@ -59,6 +59,26 @@
   (declare (type unsigned-byte size value))
   (logior value (- (mask-field (byte 1 (1- size)) value))))
 
+(declaim (inline :u8->int))
+(defun :u8->int (value)
+  (declare (type (unsigned-byte 8) value))
+  (the (signed-byte 8) (:uint->int 8 value)))
+
+(declaim (inline :u16->int))
+(defun :u16->int (value)
+  (declare (type (unsigned-byte 16) value))
+  (the (signed-byte 16) (:uint->int 16 value)))
+
+(declaim (inline :u32->int))
+(defun :u32->int (value)
+  (declare (type (unsigned-byte 32) value))
+  (the (signed-byte 32) (:uint->int 32 value)))
+
+(declaim (inline :u64->int))
+(defun :u64->int (value)
+  (declare (type (unsigned-byte 64) value))
+  (the (signed-byte 64) (:uint->int 64 value)))
+
 (:include "alert")
 (:include "apropos+")
 (:include "apropos-value")
