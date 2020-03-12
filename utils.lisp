@@ -47,6 +47,11 @@
                        `(cons (quote ,k) ,v)))
                    (alexandria:plist-alist kvp))))
 
+(defun :alist-remove (alist keys &key key test)
+  "Remove the given `keys' from `alist'"
+  (remove-if (lambda (cell) (member (car cell) keys :key key :test test))
+             alist))
+
 (defmacro :plist (&rest kvp)
   "Pseudo-syntax for literla plist"
   `(list ,@(mapcan (lambda (kvp)
