@@ -3,6 +3,7 @@
 (:include "quicklisp")
 (:include "quicklisp+")
 
+(declaim (inline :hash))
 (defun :hash (&rest kvp)
   "Pseudo-syntax for literla hash tables"
   (declare (dynamic-extent kvp))
@@ -34,7 +35,7 @@
         `(let ((,ht-sym (make-hash-table :size ,(length keys) :test #',test)))
            (setf ,@(mapcan (lambda (kvp)
                              (destructuring-bind (k . v) kvp
-                               (list `(gethash (quote ,k) ,ht-sym) v)))
+                               (list `(gethash ,k ,ht-sym) v)))
                            kvp-l))
            ,ht-sym))
       whole))
