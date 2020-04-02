@@ -1,7 +1,9 @@
 (in-package #:cl-user)
 
 (defstruct (:place (:constructor :make-place (place-reader place-writer))
-                   (:conc-name nil))
+                   (:conc-name nil)
+                   (:copier nil)
+                   (:predicate :place-p))
   (:place-reader nil :type function :read-only t)
   (:place-writer nil :type function :read-only t))
 
