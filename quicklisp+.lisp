@@ -14,6 +14,8 @@
 
 (defun :ql-dependencies (system)
   "Get the dependencies of system which are in Quicklisp"
+  (let ((*trace-output* (make-broadcast-stream)))
+    (ql-dist:ensure-installed (ql-dist:find-system system)))
   (let* ((dependent-system-names (:system-dependencies system))
          (ql-system-names (mapcar #'ql-dist:name (ql:system-list))))
     (nintersection dependent-system-names ql-system-names :test #'string=)))
