@@ -18,12 +18,13 @@
 (defun :executable-find (command)
   "Attempt to find the executable corresponding to `command'."
   (multiple-value-bind (outstring errstring exit-code)
-      (uiop:run-program (list  #+(or win32 mswindows)"where"
-                               #-(or win32 mswindows)"which"
-                               command) :force-shell t :output '(:string :stripped t) :ignore-error-status t)
+      (uiop:run-program (list (cond
+                                ((uiop:os-windows-p) "where")
+                                ((or (uiop:os-unix-p)
+                                     (uiop:os-macosx-p)) "which"))
+                              command) :force-shell t :output '(:string :stripped t) :ignore-error-status t)
     (declare (ignore errstring))
     (when (zerop exit-code) (uiop:parse-native-namestring
-                             #+(or win32 mswindows)
-                             (subseq outstring 0 (position #\Return outstring))
-                             #-(or win32 mswindows)
-                             outstring))))
+                             (if (uiop:os-windows-p)
+                                 (subseq outstring 0 (position #\Return outstring))
+                                 outstring)))))
