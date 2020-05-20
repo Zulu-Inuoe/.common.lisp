@@ -90,6 +90,8 @@
 (:include "apropos-value")
 (:include "cl-dot+")
 (:include "fizzbuzz")
+(:include "id")
+(:include "guid")
 (:include "make-project")
 (:include "uiop+")
 (:include "user")
