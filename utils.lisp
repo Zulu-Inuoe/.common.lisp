@@ -85,6 +85,33 @@
   (declare (type (unsigned-byte 64) value))
   (the (signed-byte 64) (:uint->int 64 value)))
 
+(declaim (inline :int->uint))
+(defun :int->uint (size value)
+  "unsigned integer -> signed integer conversion"
+  (declare (type unsigned-byte size)
+           (type signed-byte value))
+  (ldb (byte size 0) value))
+
+(declaim (inline :i8->uint))
+(defun :i8->uint (value)
+  (declare (type (signed-byte 8) value))
+  (the (unsigned-byte 8) (:int->uint 8 value)))
+
+(declaim (inline :i16->uint))
+(defun :i16->uint (value)
+  (declare (type (signed-byte 16) value))
+  (the (unsigned-byte 16) (:int->uint 16 value)))
+
+(declaim (inline :i32->uint))
+(defun :i32->uint (value)
+  (declare (type (signed-byte 32) value))
+  (the (unsigned-byte 32) (:int->uint 32 value)))
+
+(declaim (inline :i64->uint))
+(defun :i64->uint (value)
+  (declare (type (signed-byte 64) value))
+  (the (unsigned-byte 64) (:int->uint 64 value)))
+
 (:include "alert")
 (:include "apropos+")
 (:include "apropos-value")
