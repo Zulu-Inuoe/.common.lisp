@@ -30,11 +30,17 @@
                         `(loop
                            :for (,key-sym ,value-sym) :on ,plist-form :by #'cddr
                            :do ,(funcall setter-generator key-sym value-sym)))
+                      (merge-vector (vector-form)
+                        `(loop
+                           :for ,key-sym :from 0
+                           :for ,value-sym :across ,vector-form
+                           :do ,(funcall setter-generator key-sym value-sym)))
                       (merge-on (type form)
                         (ecase type
                           (:hash (merge-hash form))
                           (:alist (merge-alist form))
-                          (:plist (merge-plist form)))))
+                          (:plist (merge-plist form))
+                          (:vector (merge-vector form)))))
                (cond
                  ((and (vectorp (car cell)) (not (stringp (car cell))))
                   (prog1 (merge-on type (aref (car cell) 0))
