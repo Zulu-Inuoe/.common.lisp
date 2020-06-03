@@ -88,14 +88,10 @@
                :collect
                (cond
                  ((and (vectorp v) (not (stringp v)))
-                  (let ((b-vector-sym (gensym "B-VECTOR"))
-                        (elt-sym (gensym "ELT")))
-                    `(loop
-                       :with ,b-vector-sym := ,(aref v 0)
-                       :for ,elt-sym :across ,b-vector-sym
-                       :do
-                          (push ,elt-sym ,vector-sym)
-                       :finally (incf ,length-sym (length ,b-vector-sym)))))
+                  `(map nil (lambda (elt)
+                              (push elt ,vector-sym)
+                              (incf ,length-sym))
+                        ,(aref v 0)))
                  (t
                   `(progn
                      (push ,v ,vector-sym)
