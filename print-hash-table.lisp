@@ -3,7 +3,7 @@
 (eval-when (:compile-toplevel :load-toplevel :execute)
   (defun :hash-table-reader (stream char)
     (declare (ignore char))
-    `(hash ,@(read-delimited-list #\} stream  t))))
+    `(:hash ,@(read-delimited-list #\} stream t))))
 
 ;; (eval-when (:compile-toplevel :load-toplevel :execute)
 ;;   (set-macro-character #\{ ':hash-table-reader)
