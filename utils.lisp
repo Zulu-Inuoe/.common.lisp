@@ -35,12 +35,25 @@
                            :for ,key-sym :from 0
                            :for ,value-sym :across ,vector-form
                            :do ,(funcall setter-generator key-sym value-sym)))
+                      (merge-list (list-form)
+                        `(loop
+                           :for ,key-sym :from 0
+                           :for ,value-sym :in ,list-form
+                           :do ,(funcall setter-generator key-sym value-sym)))
+                      (merge-sequence (sequence-form)
+                        `(map nil (let ((,key-sym 0))
+                                    (lambda (,value-sym)
+                                      ,(funcall setter-generator key-sym value-sym)
+                                      (incf ,key-sym)))
+                              ,sequence-form))
                       (merge-on (type form)
                         (ecase type
                           (:hash (merge-hash form))
                           (:alist (merge-alist form))
                           (:plist (merge-plist form))
-                          (:vector (merge-vector form)))))
+                          (:vector (merge-vector form))
+                          (:list (merge-list form))
+                          (:sequence (merge-sequence form)))))
                (cond
                  ((and (vectorp (car cell)) (not (stringp (car cell))))
                   (prog1 (merge-on type (aref (car cell) 0))
