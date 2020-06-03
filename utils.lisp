@@ -68,7 +68,7 @@
 (defmacro :alist (&rest kvp)
   "Pseudo-syntax for literal alists"
   (if kvp
-      (%kvp->table-forms kvp :alist)
+      `(nreverse ,(%kvp->table-forms kvp :alist))
       `(list)))
 
 (defmacro :plist (&rest kvp)
