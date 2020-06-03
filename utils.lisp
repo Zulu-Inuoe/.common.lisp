@@ -77,6 +77,32 @@
       (%kvp->table-forms kvp :plist)
       `(list)))
 
+(defmacro :vector (&rest values)
+  (if values
+      (let ((vector-sym (gensym "VECTOR"))
+            (length-sym (gensym "LENGTH")))
+        `(let ((,vector-sym ())
+               (,length-sym 0))
+           ,@(loop
+               :for v :in values
+               :collect
+               (cond
+                 ((and (vectorp v) (not (stringp v)))
+                  (let ((b-vector-sym (gensym "B-VECTOR"))
+                        (elt-sym (gensym "ELT")))
+                    `(loop
+                       :with ,b-vector-sym := ,(aref v 0)
+                       :for ,elt-sym :across ,b-vector-sym
+                       :do
+                          (push ,elt-sym ,vector-sym)
+                       :finally (incf ,length-sym (length ,b-vector-sym)))))
+                 (t
+                  `(progn
+                     (push ,v ,vector-sym)
+                     (incf ,length-sym)))))
+           (make-array ,length-sym :initial-contents (nreverse ,vector-sym))))
+      `(vector)))
+
 (defun :alist-remove (alist keys &key key test)
   "Remove the given `keys' from `alist'"
   (remove-if (lambda (cell) (member (car cell) keys :key key :test test))
