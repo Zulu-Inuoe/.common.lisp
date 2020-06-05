@@ -82,6 +82,16 @@
       (%kvp->table-forms kvp :hash)
       `(make-hash-table :test 'equal)))
 
+(define-setf-expander :hash (table &rest keys)
+  (let ((table-sym (gensym "TABLE"))
+        (val-syms (mapcar (lambda (k) (declare (ignore k)) (gensym "VALUE")) keys)))
+    (values `(,table-sym)
+            `(,table)
+            `(,@val-syms)
+            `(setf (values ,@(mapcar (lambda (k) `(gethash ',k ,table-sym)) keys))
+                   (values ,@val-syms))
+            `(values ,@(mapcar (lambda (k) `(gethash ,k ',table-sym)) keys)))))
+
 (defmacro :alist (&rest kvp)
   "Pseudo-syntax for literal alists"
   (if kvp
