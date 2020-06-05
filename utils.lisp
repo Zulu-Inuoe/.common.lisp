@@ -3,6 +3,10 @@
 (:include "quicklisp")
 (:include "quicklisp+")
 
+(:import+ #:named-readtables)
+
+(use-package '#:named-readtables)
+
 (eval-when (:compile-toplevel :load-toplevel :execute)
   (defun %kvp->table-forms (kvp type)
     (let ((table-sym (gensym (format nil "~A-VALUE" type))))
@@ -183,3 +187,12 @@
 (:include "package+")
 (:include "place")
 (:include "print-hash-table")
+
+(defreadtable zulu
+  (:merge :standard)
+  (:macro-char #\{ #':hash-table-reader)
+  (:macro-char #\} (lambda (stream char)
+                     (declare (ignore stream char))
+                     (error "unmatched close bracket"))))
+
+(in-readtable zulu)
