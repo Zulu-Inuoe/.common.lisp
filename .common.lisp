@@ -19,10 +19,6 @@
     `(eval-when (:compile-toplevel :load-toplevel :execute)
        ,@body))
 
-  (:eval-always
-    (require "asdf")
-    (require "uiop"))
-
   (defmacro :unless-arg (arg &body body)
     `(:eval-always
        (unless (member ,arg (uiop:command-line-arguments) :test #'string=)
