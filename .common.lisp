@@ -19,9 +19,16 @@
     `(eval-when (:compile-toplevel :load-toplevel :execute)
        ,@body))
 
+  (defun :arg (arg)
+    (cadr (member arg (uiop:command-line-arguments) :test #'string=)))
+
+  (defun :argp (arg)
+    (and (member arg (uiop:command-line-arguments) :test #'string=)
+         t))
+
   (defmacro :unless-arg (arg &body body)
     `(:eval-always
-       (unless (member ,arg (uiop:command-line-arguments) :test #'string=)
+       (unless (:argp ,arg)
          ,@body)))
 
   (defmacro :when-arg (arg &body body)
@@ -29,20 +36,15 @@
         (uiop:ensure-list arg)
       (let ((tmp-sym (gensym "TMP")))
         `(:eval-always
-           (let ((,tmp-sym (member ,arg-name (uiop:command-line-arguments) :test #'string=)))
+           (let ((,tmp-sym (:arg ,arg-name)))
              (when ,tmp-sym
                ,@(if arg-value-sym
-                     `((let ((,arg-value-sym (cadr ,tmp-sym)))
+                     `((let ((,arg-value-sym ,tmp-sym))
                          ,@body))
                      body)))))))
 
-  (defun :argp (arg)
-    (and (member arg (uiop:command-line-arguments) :test #'string=)
-         t))
-
   (defun :arg= (arg value)
-    (let* ((arg-cons (member arg (uiop:command-line-arguments) :test #'string=))
-           (arg-val (second arg-cons)))
+    (let ((arg-val (:arg arg)))
       (and arg-val (string= arg-val value))))
 
   (defmacro :include (file)
