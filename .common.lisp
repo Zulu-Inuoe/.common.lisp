@@ -85,30 +85,69 @@
              (uiop:quit 1)))
       (unless thing
         (lose "Missing argument to --compile"))
-      (let ((truename (probe-file thing)))
+      (let* ((truename (probe-file thing))
+             (out-name (or (:arg "-o")
+                           (:arg "--output")
+                           (unless (and truename (string= (pathname-type truename) "asd"))
+                             (merge-pathnames (make-pathname :type "fasl")
+                                              truename))))
+             (out-type
+               (cond
+                 ((null out-name) nil)
+                 ((string= (pathname-type out-name) "fasl") :fasl)
+                 ((string= (pathname-type out-name) "exe") :exe)))
+             (entry-point (string-upcase (or (:arg "-e")
+                                             (:arg "--entry")
+                                             "CL-USER::MAIN"))))
         (cond
           ((null truename)
            (lose "Cannot find file '~A'" thing))
           ((uiop:directory-pathname-p truename)
            (lose "Pathname is a directory: '~A'" truename))
           ((and (pathname-type truename) (string-equal (pathname-type truename) "asd"))
-           (let ((success nil))
-             (unwind-protect
-                  (progn
-                    (let ((*debugger-hook*
-                            (lambda (c h)
-                              (declare (ignore h))
-                              (lose "~A" c))))
-                      (asdf:load-asd truename)
-                      (asdf:load-system (pathname-name truename) :verbose (:argp "--verbose") :force (:argp "--force"))))
-               (uiop:quit (if success 0 1)))))
+           (cond
+             ((eq out-type nil)
+              (let ((success nil))
+                (unwind-protect
+                     (progn
+                       (let ((*debugger-hook*
+                               (lambda (c h)
+                                 (declare (ignore h))
+                                 (lose "~A" c))))
+                         (asdf:load-asd truename)
+                         (asdf:load-system (pathname-name truename) :verbose (:argp "--verbose") :force (:argp "--force"))))
+                  (uiop:quit (if success 0 1)))))
+             (t
+              (lose "unsupported out-type '~A'" out-type))))
           (t
-           (let ((success nil))
-             (unwind-protect
-                  (handler-case
-                      (let ((*compile-verbose*  (:argp "--verbose")))
-                        (setf success (not (nth-value 2 (compile-file truename)))))
-                    (error (e)
-                      (lose "~A" e)))
-               (uiop:quit (if success 0 1)))))))))
-  )
+           (cond
+             ((eq out-type :fasl)
+              (let ((success nil))
+                (unwind-protect
+                     (handler-case
+                         (let ((*compile-verbose*  (:argp "--verbose")))
+                           (setf success (not (nth-value 2 (compile-file truename :output-file out-name)))))
+                       (error (e)
+                         (lose "~A" e)))
+                  (uiop:quit (if success 0 1)))))
+             ((eq out-type :exe)
+              (let ((success nil)
+                    (file nil))
+                (unwind-protect
+                     (handler-case
+                         (let ((*compile-verbose*  (:argp "--verbose")))
+                           (multiple-value-bind (out-file warnings-p failure-p) (compile-file truename)
+                             (declare (ignore warnings-p))
+                             (when (not failure-p)
+                               (load out-file :verbose (:argp "--verbose"))
+                               #+sbcl
+                               (sb-ext:save-lisp-and-die out-name :toplevel (read-from-string entry-point) :executable t)
+                               #-sbcl
+                               (lose "executable dumping unsupported"))
+                             (setf success (not failure-p)
+                                   file out-file)))
+                       (error (e)
+                         (lose "~A" e)))
+                  (uiop:quit (if success 0 1)))))
+             (t
+              (lose "unsupported out-type: '~A'" out-type)))))))))
