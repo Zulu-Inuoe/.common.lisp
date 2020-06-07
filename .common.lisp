@@ -9,6 +9,10 @@
   (unless (member "--no-quicklisp" (uiop:command-line-arguments) :test #'string=)
     (load (merge-pathnames (make-pathname :name "quicklisp" :type "lisp") #.(or *compile-file-truename* *load-truename*)))))
 
+;; Load up flexi-streams in case we're using Sly
+#+lispworks
+(ql:quickload '#:flexi-streams :silent t)
+
 #-lispworks
 (progn
   (defmacro :eval-always (&body body)
