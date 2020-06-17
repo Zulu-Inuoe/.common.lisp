@@ -1,5 +1,10 @@
 (in-package #:cl-user)
 
+#+sbcl
+(progn
+  (restrict-compiler-policy 'debug 3 3)
+  (restrict-compiler-policy 'safety 3 3))
+
 (eval-when (:compile-toplevel :load-toplevel :execute)
   (require "asdf")
   (require "uiop"))
