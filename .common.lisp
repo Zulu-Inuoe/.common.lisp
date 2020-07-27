@@ -63,9 +63,6 @@
          (eval-when (:load-toplevel :execute)
            (load (merge-pathnames ',file (or *load-truename* *default-pathname-defaults*)))))))
 
-  (:unless-arg "--no-quicklisp"
-    (:include "quicklisp"))
-
   (defmacro :import+ (&rest systems)
     `(eval-when (:compile-toplevel :load-toplevel :execute)
        ,@ (mapcar (lambda (system-designator)
