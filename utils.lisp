@@ -190,6 +190,7 @@
 (:include "cl-dot+")
 (:include "fizzbuzz")
 (:include "id")
+(:include "indent")
 (:include "guid")
 (:include "make-project")
 (:include "uiop+")
