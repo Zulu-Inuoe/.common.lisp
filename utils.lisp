@@ -131,59 +131,6 @@
   (remove-if (lambda (cell) (member (car cell) keys :key key :test test))
              alist))
 
-(declaim (inline :uint->int))
-(defun :uint->int (size value)
-  "unsigned integer -> signed integer conversion"
-  (declare (type unsigned-byte size value))
-  (logior value (- (mask-field (byte 1 (1- size)) value))))
-
-(declaim (inline :u8->int))
-(defun :u8->int (value)
-  (declare (type (unsigned-byte 8) value))
-  (the (signed-byte 8) (:uint->int 8 value)))
-
-(declaim (inline :u16->int))
-(defun :u16->int (value)
-  (declare (type (unsigned-byte 16) value))
-  (the (signed-byte 16) (:uint->int 16 value)))
-
-(declaim (inline :u32->int))
-(defun :u32->int (value)
-  (declare (type (unsigned-byte 32) value))
-  (the (signed-byte 32) (:uint->int 32 value)))
-
-(declaim (inline :u64->int))
-(defun :u64->int (value)
-  (declare (type (unsigned-byte 64) value))
-  (the (signed-byte 64) (:uint->int 64 value)))
-
-(declaim (inline :int->uint))
-(defun :int->uint (size value)
-  "unsigned integer -> signed integer conversion"
-  (declare (type unsigned-byte size)
-           (type signed-byte value))
-  (ldb (byte size 0) value))
-
-(declaim (inline :i8->uint))
-(defun :i8->uint (value)
-  (declare (type (signed-byte 8) value))
-  (the (unsigned-byte 8) (:int->uint 8 value)))
-
-(declaim (inline :i16->uint))
-(defun :i16->uint (value)
-  (declare (type (signed-byte 16) value))
-  (the (unsigned-byte 16) (:int->uint 16 value)))
-
-(declaim (inline :i32->uint))
-(defun :i32->uint (value)
-  (declare (type (signed-byte 32) value))
-  (the (unsigned-byte 32) (:int->uint 32 value)))
-
-(declaim (inline :i64->uint))
-(defun :i64->uint (value)
-  (declare (type (signed-byte 64) value))
-  (the (unsigned-byte 64) (:int->uint 64 value)))
-
 (:include "alert")
 (:include "apropos+")
 (:include "apropos-value")
@@ -191,6 +138,7 @@
 (:include "fizzbuzz")
 (:include "id")
 (:include "indent")
+(:include "int-uint")
 (:include "guid")
 (:include "make-project")
 (:include "uiop+")
