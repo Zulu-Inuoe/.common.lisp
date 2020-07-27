@@ -2,8 +2,8 @@
 
 #+sbcl
 (progn
-  (restrict-compiler-policy 'debug 3 3)
-  (restrict-compiler-policy 'safety 3 3))
+  (sb-ext:restrict-compiler-policy 'debug 3 3)
+  (sb-ext:restrict-compiler-policy 'safety 3 3))
 
 (eval-when (:compile-toplevel :load-toplevel :execute)
   (require "asdf")
@@ -111,13 +111,12 @@
              ((eq out-type nil)
               (let ((success nil))
                 (unwind-protect
-                     (progn
-                       (let ((*debugger-hook*
-                               (lambda (c h)
-                                 (declare (ignore h))
-                                 (lose "~A" c))))
-                         (asdf:load-asd truename)
-                         (asdf:load-system (pathname-name truename) :verbose (:argp "--verbose") :force (:argp "--force"))))
+                  (let ((*debugger-hook*
+                          (lambda (c h)
+                            (declare (ignore h))
+                            (lose "~A" c))))
+                    (asdf:load-asd truename)
+                    (asdf:load-system (pathname-name truename) :verbose (:argp "--verbose") :force (:argp "--force")))
                   (uiop:quit (if success 0 1)))))
              (t
               (lose "unsupported out-type '~A'" out-type))))
